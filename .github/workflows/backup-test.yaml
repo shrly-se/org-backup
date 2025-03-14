@@ -1,0 +1,43 @@
+name: Backup GitHub Repos - Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    services:
+      localstack:
+        image: localstack/localstack
+        ports:
+          - 4566:4566
+
+    env:
+      ORG_NAME: 'shrly-se'
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      S3_BUCKET: 'github-repo-backups'
+      AWS_ACCESS_KEY_ID: 'test'
+      AWS_SECRET_ACCESS_KEY: 'test'
+      AWS_DEFAULT_REGION: 'us-east-1'
+      AWS_ENDPOINT_URL: 'http://localhost:4566'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq zip
+
+      - name: Create S3 Bucket in LocalStack
+        run: |
+          aws --endpoint-url=$AWS_ENDPOINT_URL s3 mb s3://$S3_BUCKET
+
+      - name: Run Backup Script
+        run: |
+          bash backup.sh
+
+      - name: List Uploaded Files in LocalStack
+        run: |
+          aws --endpoint-url=$AWS_ENDPOINT_URL s3 ls s3://$S3_BUCKET/ --recursive
