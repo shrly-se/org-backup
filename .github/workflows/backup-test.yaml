@@ -14,7 +14,7 @@ jobs:
 
     env:
       ORG_NAME: 'shrly-se'
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       S3_BUCKET: 'github-repo-backups'
       AWS_ACCESS_KEY_ID: 'test'
       AWS_SECRET_ACCESS_KEY: 'test'
